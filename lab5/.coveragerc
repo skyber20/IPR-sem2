@@ -1,0 +1,14 @@
+[run]
+omit =
+    */__pycache__/*
+    */.venv/*
+    */tests/*
+    app/init_db.py
+    app/work_with_database.py
+
+[report]
+fail_under = 70
+
+
+show_missing = True
+skip_covered = False
