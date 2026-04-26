@@ -4,6 +4,7 @@
 
 # User-specific stuff
 *tz.md
+*secret.yaml
 cloud-native-docker-k8s.pdf
 
 .idea/

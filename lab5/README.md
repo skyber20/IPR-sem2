@@ -1,95 +1,123 @@
-## Описание проекта
+# Лабораторная работа 5
 
-Проект представляет собой веб-приложение для управления задачами, построенное на стеке FastAPI и PostgreSQL. Лабораторная работа направлена на автоматизацию процессов разработки с помощью GitLab CI/CD.
+Развертывание приложения из лабораторной работы 4 в Kubernetes.
 
-**Технологический стек:**
-- **Backend:** FastAPI, SQLAlchemy, Pydantic
-- **База данных:** PostgreSQL
-- **Контейнеризация:** Docker, Docker Compose
-- **CI/CD:** GitLab CI/CD, GitLab Container Registry
-- **Тестирование:** pytest, pytest-cov
+Приложение: TODO Matrix на FastAPI.  
+База данных: PostgreSQL.
 
-## CI/CD Пайплайн
+## Что сделано
 
-### Структура пайплайна
-Пайплайн разделен на четыре последовательных этапа:
+- приложение собрано в Docker image `skyber2/ipr-lab-3:latest`;
+- добавлены Kubernetes-манифесты в папке `k8s/`;
+- приложение запускается через `Deployment`;
+- PostgreSQL запускается через `StatefulSet`;
+- БД хранит данные в `PersistentVolumeClaim`;
+- настройки вынесены в `ConfigMap`;
+- логин и пароль БД вынесены в `Secret`;
+- приложение доступно через `NodePort` на порту `30080`.
 
-1. **test** — запуск автоматических тестов и анализ покрытия кода
-2. **build** — сборка Docker-образа приложения
-3. **publish** — публикация образа в GitLab Container Registry
-4. **deploy** — имитация процесса развертывания
+## Структура k8s
 
-### Конфигурация пайплайна
-Основная конфигурация находится в файле .gitlab-ci.yml Ключевые особенности:
-- Использование переменных окружения для гибкой настройки
-- Кэширование зависимостей Python для ускорения выполнения
-- Генерация артефактов: отчеты о тестировании (JUnit) и покрытии кода (Cobertura)
-
-### Результаты выполнения
-- **Статус тестов:** 10 тестов пройдены успешно
-- **Покрытие кода:** 88%
-- **Сборка Docker:** образ успешно собран и протестирован
-- **Публикация:** образ доступен в GitLab Container Registry
-- **Ссылка на пайплайн:** https://gitlab.mai.ru/idt-lw/m8o-102bv-25/personal/ARTimoshenko/lab-4/-/pipelines/31639
-- **Ссылка на Container Registry: https://gitlab.mai.ru/idt-lw/m8o-102bv-25/personal/ARTimoshenko/lab-4/container_registry/438
-## Тестирование
-
-### Unit-тесты
-Реализованы comprehensive unit-тесты для проверки функциональности API:
-- Проверка health-эндпоинта (`/health`)
-- Тестирование CRUD-операций с задачами:
-  - Получение списка задач
-  - Добавление новой задачи
-  - Обновление статуса задачи
-  - Перемещение задачи между квадрантами
-  - Удаление задачи
-- Тестирование моделей базы данных
-
-### Инструменты тестирования
-- **pytest** — фреймворк для написания и запуска тестов
-- **pytest-cov** — измерение покрытия кода
-- **FastAPI TestClient** — тестирование HTTP-эндпоинтов
-
-### Конфигурация тестов
-- Использование SQLite in-memory базы данных для изолированного тестирования
-- Автоматическое создание и очистка тестовых данных
-- Генерация отчетов в форматах JUnit и HTML
-
-## Работа с Docker
-
-### Dockerfile
-Многоэтапная сборка Docker-образа:
-- Этап builder: установка зависимостей и компиляция
-- Этап runtime: минимальный образ с приложением
-- Оптимизация размера итогового образа
-
-### Docker Compose
-Конфигурация для локальной разработки включает:
-- Сервис приложения (FastAPI)
-- Сервис базы данных (PostgreSQL)
-- Сервис администрирования БД (pgAdmin)
-- Настроенные health-check для контроля состояния сервисов
-
-## Безопасность и конфигурация
-
-### Управление секретами
-- Использование GitLab CI/CD Variables для хранения чувствительных данных
-
-### Конфигурация базы данных
-- Параметры подключения вынесены в переменные окружения
-- Автоматическое создание таблиц при инициализации приложения
-
-## Структура проекта
-```bash
-lab4/
-├── .gitlab-ci.yml                 # Конфигурация CI/CD пайплайна
-├── .coveragerc                    # Настройки анализа покрытия кода
-├── Dockerfile                     # Конфигурация Docker-образа
-├── docker-compose.yml             # Конфигурация Docker Compose для разработки
-├── requirements.txt               # Зависимости Python
-├── README.md                      # Документация проекта
-│
-├── app/                           # Основной код приложения
-│
-└── tests/                         # Модульные и интеграционные тесты
+```text
+k8s/
+  namespace.yaml
+  configmap.yaml
+  secret.yaml.example
+  postgres-service.yaml
+  postgres-statefulset.yaml
+  app-deployment.yaml
+  app-service.yaml
 ```
+
+`secret.yaml` создается локально и не пушится в git.
+
+## Подготовка Secret
+
+Создать локальный файл:
+
+```bash
+cp k8s/secret.yaml.example k8s/secret.yaml
+```
+
+В `k8s/secret.yaml` заменить пароль:
+
+```yaml
+stringData:
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: lab5_postgres_password
+```
+
+Не использовать реальные личные пароли.
+
+## Запуск в Kubernetes
+Применить манифесты:
+
+```bash
+kubectl apply -f k8s/
+```
+
+## Проверка
+
+Проверить pod-ы:
+
+```bash
+kubectl get pods -n todo-matrix
+```
+
+Ожидаемый результат:
+
+```text
+postgres-0   1/1   Running
+todo-app     1/1   Running
+```
+
+Проверить сервисы:
+
+```bash
+kubectl get services -n todo-matrix
+```
+
+У `todo-app` должен быть тип `NodePort` и порт `30080`.
+
+Проверить диск PostgreSQL:
+
+```bash
+kubectl get pvc -n todo-matrix
+```
+
+Статус должен быть `Bound`.
+
+Проверить API:
+
+```bash
+curl http://localhost:30080/health
+curl http://localhost:30080/get_tasks
+```
+
+Ожидаемый ответ health:
+
+```json
+{"status":"healthy"}
+```
+
+Открыть приложение:
+
+```text
+http://localhost:30080
+```
+
+## Логи
+
+Логи приложения:
+
+```bash
+kubectl logs deployment/todo-app -n todo-matrix
+```
+
+Логи PostgreSQL:
+
+```bash
+kubectl logs statefulset/postgres -n todo-matrix
+```
+
+При старте приложение создает таблицы в БД. Если PostgreSQL еще не готов, приложение делает повторные попытки подключения.

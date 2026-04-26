@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: todo-config
+  namespace: todo-matrix
+  labels:
+    app: todo-app
+data:
+  POSTGRES_DB: todo_app
+  POSTGRES_PORT: "5432"
+  POSTGRES_HOST: postgres
