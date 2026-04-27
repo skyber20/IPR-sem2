@@ -1,0 +1,7 @@
+database:
+  name: todo_app
+  user: postgres
+  password: change_me_dev
+
+storage:
+  size: 1Gi

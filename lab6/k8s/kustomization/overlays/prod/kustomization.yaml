@@ -1,0 +1,22 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: todo-matrix-prod
+resources:
+  - namespace.yaml
+  - ../../base
+patches:
+  - path: deployment-patch.yaml
+generatorOptions:
+  disableNameSuffixHash: true
+configMapGenerator:
+  - name: todo-config
+    literals:
+      - POSTGRES_DB=todo_app
+      - POSTGRES_HOST=postgres-0.postgres.todo-matrix-infra.svc.cluster.local
+      - POSTGRES_PORT=5432
+secretGenerator:
+  - name: todo-db-secret
+    type: Opaque
+    literals:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=change_me_prod

@@ -1,0 +1,12 @@
+replicaCount: 2
+
+service:
+  type: ClusterIP
+  nodePort: null
+
+database:
+  name: todo_app
+  host: postgres-0.postgres.todo-matrix-infra.svc.cluster.local
+  port: "5432"
+  user: postgres
+  password: change_me_prod

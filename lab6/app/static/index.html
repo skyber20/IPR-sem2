@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TODO Matrix</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>TODO Matrix</h1>
+        </header>
+
+        <div class="add-task-form">
+            <input type="text" id="taskInput" placeholder="Новая задача" class="task-input">
+            <select id="quadrantSelect" class="quadrant-select">
+                <option value="1">Срочно • Важно</option>
+                <option value="2">Несрочно • Важно</option>
+                <option value="3">Срочно • Неважно</option>
+                <option value="4">Несрочно • Неважно</option>
+            </select>
+            <button id="addTaskBtn" class="add-btn">+</button>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <span class="stat-number" id="totalTasks">0</span>
+                <span class="stat-label">Всего</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" id="doneTasks">0</span>
+                <span class="stat-label">Выполнено</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" id="priorityTasks">0</span>
+                <span class="stat-label">В приоритете</span>
+            </div>
+        </div>
+
+        <div class="matrix">
+            <div class="quadrant quadrant-1">
+                <div class="quadrant-header">
+                    <h3>СРОЧНО • ВАЖНО</h3>
+                    <span class="task-count" id="count1">0</span>
+                </div>
+                <div class="tasks-list" id="tasks1" data-quadrant="1"></div>
+            </div>
+
+            <div class="quadrant quadrant-2">
+                <div class="quadrant-header">
+                    <h3>НЕСРОЧНО • ВАЖНО</h3>
+                    <span class="task-count" id="count2">0</span>
+                </div>
+                <div class="tasks-list" id="tasks2" data-quadrant="2"></div>
+            </div>
+
+            <div class="quadrant quadrant-3">
+                <div class="quadrant-header">
+                    <h3>СРОЧНО • НЕВАЖНО</h3>
+                    <span class="task-count" id="count3">0</span>
+                </div>
+                <div class="tasks-list" id="tasks3" data-quadrant="3"></div>
+            </div>
+
+            <div class="quadrant quadrant-4">
+                <div class="quadrant-header">
+                    <h3>НЕСРОЧНО • НЕВАЖНО</h3>
+                    <span class="task-count" id="count4">0</span>
+                </div>
+                <div class="tasks-list" id="tasks4" data-quadrant="4"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
