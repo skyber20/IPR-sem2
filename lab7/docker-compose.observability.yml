@@ -1,0 +1,73 @@
+services:
+  app:
+    build:
+      context: .
+    image: todo-matrix-app:lab7
+    environment:
+      OTEL_SERVICE_NAME: todo-matrix-app
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://tempo:4318
+    depends_on:
+      tempo:
+        condition: service_started
+
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=6h
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    networks:
+      - app-network
+    depends_on:
+      app:
+        condition: service_started
+    profiles: ["development"]
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:11.3.0
+    ports:
+      - "3001:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+      GF_USERS_DEFAULT_THEME: light
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    networks:
+      - app-network
+    depends_on:
+      prometheus:
+        condition: service_started
+      tempo:
+        condition: service_started
+    profiles: ["development"]
+    restart: unless-stopped
+
+  tempo:
+    image: grafana/tempo:2.6.1
+    user: "0"
+    command:
+      - -config.file=/etc/tempo/tempo.yaml
+    ports:
+      - "3200:3200"
+      - "14317:4317"
+      - "14318:4318"
+    volumes:
+      - ./observability/tempo/tempo.yaml:/etc/tempo/tempo.yaml:ro
+      - tempo_data:/tmp/tempo
+    networks:
+      - app-network
+    profiles: ["development"]
+    restart: unless-stopped
+
+volumes:
+  grafana_data:
+  tempo_data:

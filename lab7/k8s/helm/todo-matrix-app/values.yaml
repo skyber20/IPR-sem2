@@ -1,0 +1,34 @@
+replicaCount: 1
+
+image:
+  repository: skyber2/ipr-lab-3
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8000
+  nodePort: null
+
+database:
+  name: todo_app
+  host: postgres-0.postgres
+  port: "5432"
+  user: postgres
+  password: change_me
+
+observability:
+  serviceName: todo-matrix-app
+  otlpEndpoint: ""
+  serviceMonitor:
+    enabled: false
+    interval: 15s
+    labels: {}
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
